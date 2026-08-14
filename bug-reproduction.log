@@ -1,0 +1,9 @@
+=== RUN   TestCreateWorkflowStep_DuplicateOrderMustBeRejected
+    handler_test.go:65: status: expected 409, actual 201
+    handler_test.go:73: persisted count: expected 1, actual 2
+--- FAIL: TestCreateWorkflowStep_DuplicateOrderMustBeRejected (0.00s)
+=== RUN   TestCreateWorkflowStep_SameOrderAcrossWorkflowsIsAllowed
+--- PASS: TestCreateWorkflowStep_SameOrderAcrossWorkflowsIsAllowed (0.00s)
+FAIL
+FAIL	github.com/tonbiattack/go-workflow-step-order-debug-lab/internal/workflowstep	0.016s
+FAIL
