@@ -1,6 +1,7 @@
 package workflowstep
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -27,6 +28,10 @@ func (h *Handler) CreateWorkflowStep(c *gin.Context) {
 
 	step.ID = uuid.NewString()
 	if err := h.repository.Create(&step); err != nil {
+		if errors.Is(err, ErrWorkflowStepOrderAlreadyExists) {
+			c.JSON(http.StatusConflict, gin.H{"error": "workflow step order already exists"})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create workflow step"})
 		return
 	}

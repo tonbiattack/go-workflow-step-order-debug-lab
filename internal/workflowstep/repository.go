@@ -1,6 +1,11 @@
 package workflowstep
 
-import "gorm.io/gorm"
+import (
+	"errors"
+	"strings"
+
+	"gorm.io/gorm"
+)
 
 // Repository はワークフローステップの永続化を担当します。
 type Repository struct {
@@ -14,7 +19,21 @@ func NewRepository(db *gorm.DB) *Repository {
 
 // Create はワークフローステップを保存します。
 func (r *Repository) Create(step *WorkflowStep) error {
-	return r.db.Create(step).Error
+	if err := r.db.Create(step).Error; err != nil {
+		if isDuplicateWorkflowStepOrderError(err) {
+			return ErrWorkflowStepOrderAlreadyExists
+		}
+		return err
+	}
+	return nil
+}
+
+// isDuplicateWorkflowStepOrderError は、SQLiteの複合一意制約違反をドメインエラーとして扱います。
+func isDuplicateWorkflowStepOrderError(err error) bool {
+	if errors.Is(err, gorm.ErrDuplicatedKey) {
+		return true
+	}
+	return strings.Contains(err.Error(), "UNIQUE constraint failed: workflow_steps.workflow_id, workflow_steps.order")
 }
 
 // CountByWorkflowAndOrder はワークフロー内の指定順序にあるステップ数を返します。
